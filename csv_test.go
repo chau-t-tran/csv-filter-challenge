@@ -9,14 +9,18 @@ import (
 
 type CSVHandlerTestSuite struct {
 	suite.Suite
+	csv CSVHandler
+}
+
+/*-------------------Setups/Teardowns-------------------*/
+
+func (suite *CSVHandlerTestSuite) SetupSuite() {
+	csv, err := NewCSVHandler("data.csv")
+	assert.NoError(suite.T(), err)
+	suite.csv = csv
 }
 
 /*-------------------Tests------------------------------*/
-
-func (suite *CSVHandlerTestSuite) TestCSVHandlerConstructor() {
-	_, err := NewCSVHandler("data.csv")
-	assert.NoError(suite.T(), err)
-}
 
 /*-------------------Runner-----------------------------*/
 
