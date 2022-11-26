@@ -1,4 +1,11 @@
 # csv-filter-challenge-public
+## Assumptions
+- CSV file is syntactically correct
+- CSV file always has three fields:
+	- `first_name` (string)
+	- `last_name` (string)
+	- `dob` (string)
+
 # Instructions
 1. Click "Use this template" to create a copy of this repository in your personal github account.  
 1. Using technology of your choice, complete assignment listed below (we use [GoLang](https://go.dev/) at Scoir, so if you know Go, show it off, but that's not required!).
