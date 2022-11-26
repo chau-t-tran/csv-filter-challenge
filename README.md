@@ -1,10 +1,11 @@
 # csv-filter-challenge-public
 ## Assumptions
-- CSV file is syntactically correct
+- CSV file is syntactically correct.
 - CSV file always has three fields:
 	- `first_name` (string)
 	- `last_name` (string)
 	- `dob` (string)
+- Each CSV line is under 4kb due to `bufio`'s default Reader size.
 
 # Instructions
 1. Click "Use this template" to create a copy of this repository in your personal github account.  
