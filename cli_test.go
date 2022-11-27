@@ -10,6 +10,13 @@ import (
 
 type CLITestSuite struct {
 	suite.Suite
+	orderedArgs []string
+}
+
+/*-------------------Setups/Teardowns-------------------*/
+
+func (suite *CLITestSuite) SetupSuite() {
+	suite.orderedArgs = []string{"Ken", "Thompson", "19430204"}
 }
 
 /*-------------------Tests------------------------------*/
@@ -20,7 +27,7 @@ func (suite *CLITestSuite) TestImplicitArgs() {
 	cli := NewCLI()
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), IMPLICIT, cli.mode)
-	assert.Equal(suite.T(), args[3:6], cli.args)
+	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
 }
 
 /*-------------------Runner-----------------------------*/
