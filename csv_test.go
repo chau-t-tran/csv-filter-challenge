@@ -22,6 +22,23 @@ func (suite *CSVHandlerTestSuite) SetupSuite() {
 
 /*-------------------Tests------------------------------*/
 
+func (suite *CSVHandlerTestSuite) TestReadLines() {
+	rows := [][]string{
+		{"first_name", "last_name", "dob"},
+		{"Bobby", "Tables", "19700101"},
+		{"Ken", "Thompson", "19430204"},
+		{"Rob", "Pike", "19560101"},
+		{"Robert", "Griesemer", "19640609"},
+	}
+	for _, expectedRow := range rows {
+		actualRow, err := suite.csv.NextRow()
+		assert.NoError(suite.T(), err)
+		assert.Equal(suite.T(), expectedRow, actualRow)
+	}
+	_, err := suite.csv.NextRow()
+	assert.Error(suite.T(), err) // eof error
+}
+
 /*-------------------Runner-----------------------------*/
 
 func TestCSVHandlerTestSuite(t *testing.T) {
