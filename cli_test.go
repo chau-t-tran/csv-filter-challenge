@@ -13,12 +13,14 @@ import (
 type CLITestSuite struct {
 	suite.Suite
 	orderedArgs []string
+	stdout      string
 }
 
 /*-------------------Setups/Teardowns-------------------*/
 
 func (suite *CLITestSuite) SetupSuite() {
 	suite.orderedArgs = []string{"Ken", "Thompson", "19430204"}
+	suite.stdout = "Ken,Thompson,19430204\n"
 }
 
 /*-------------------Tests------------------------------*/
@@ -32,6 +34,7 @@ func (suite *CLITestSuite) TestImplicitArgs() {
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), IMPLICIT, cli.mode)
 	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
 func (suite *CLITestSuite) TestExplicitArgs() {
@@ -49,12 +52,12 @@ func (suite *CLITestSuite) TestExplicitArgs() {
 		"first_name=Ken",
 	}
 	os.Args = args
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	cli, err := NewCLI()
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), EXPLICIT, cli.mode)
 	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
 func (suite *CLITestSuite) TestPromptArgs() {
@@ -86,12 +89,48 @@ func (suite *CLITestSuite) TestPromptArgs() {
 
 	os.Stdin = mockStdin
 
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	cli, err := NewCLI()
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), PROMPT, cli.mode)
 	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+}
+
+func (suite *CLITestSuite) TestRun() {
+	args := []string{
+		"cmd",
+		"-f=data.csv",
+		"-e",
+		"last_name=Thompson",
+		"dob=19430204",
+		"first_name=Ken",
+	}
+	os.Args = args
+
+	mockStdoutReader, mockStdout, err := os.Pipe()
+	assert.NoError(suite.T(), err)
+
+	oldStdout := os.Stdout
+	defer func() { os.Stdout = oldStdout }()
+
+	os.Stdout = mockStdout
+
+	cli, err := NewCLI()
+
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "data.csv", cli.path)
+	assert.Equal(suite.T(), EXPLICIT, cli.mode)
+	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+
+	cli.Run()
+
+	buf := make([]byte, 1024)
+	n, err := mockStdoutReader.Read(buf)
+	assert.NoError(suite.T(), err)
+
+	result := string(buf[:n])
+	assert.Equal(suite.T(), suite.stdout, result)
 }
 
 /*-------------------Runner-----------------------------*/
