@@ -28,12 +28,26 @@ func (suite *CLITestSuite) SetupSuite() {
 func (suite *CLITestSuite) TestImplicitArgs() {
 	args := []string{"cmd", "-f=data.csv", "-i", "Ken", "Thompson", "19430204"}
 	os.Args = args
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	cli, err := NewCLI()
+
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), IMPLICIT, cli.mode)
 	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+}
+
+func (suite *CLITestSuite) TestIncompleteImplicitArgs() {
+	args := []string{"cmd", "-f=data.csv", "-i", "Ken", "Thompson"}
+	os.Args = args
+	cli, err := NewCLI()
+
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "data.csv", cli.path)
+	assert.Equal(suite.T(), IMPLICIT, cli.mode)
+	assert.Equal(suite.T(), []string{"Ken", "Thompson", "*"}, cli.args)
+
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
