@@ -80,6 +80,7 @@ func NewCLI() (*CLI, error) {
 		arg, ok := nameArgMap[name]
 		if !ok {
 			filterArgs = append(filterArgs, "*")
+			continue
 		}
 		filterArgs = append(filterArgs, arg)
 	}
