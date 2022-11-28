@@ -49,7 +49,7 @@ func NewCLI() (*CLI, error) {
 		args := flag.Args()
 		for i, name := range colNames {
 			if i >= len(args) {
-				nameArgMap[name] = "*"
+				nameArgMap[name] = ".*"
 				continue
 			}
 			nameArgMap[name] = args[i]
@@ -79,7 +79,7 @@ func NewCLI() (*CLI, error) {
 	for _, name := range colNames {
 		arg, ok := nameArgMap[name]
 		if !ok {
-			filterArgs = append(filterArgs, "*")
+			filterArgs = append(filterArgs, ".*")
 			continue
 		}
 		filterArgs = append(filterArgs, arg)

@@ -46,7 +46,7 @@ func (suite *CLITestSuite) TestIncompleteImplicitArgs() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), IMPLICIT, cli.mode)
-	assert.Equal(suite.T(), []string{"Ken", "Thompson", "*"}, cli.args)
+	assert.Equal(suite.T(), []string{"Ken", "Thompson", ".*"}, cli.args)
 
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
@@ -87,7 +87,7 @@ func (suite *CLITestSuite) TestIncompleteExplicitArgs() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), EXPLICIT, cli.mode)
-	assert.Equal(suite.T(), []string{"Ken", "*", "19430204"}, cli.args)
+	assert.Equal(suite.T(), []string{"Ken", ".*", "19430204"}, cli.args)
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
