@@ -37,7 +37,6 @@ func (suite *CSVHandlerTestSuite) SetupSuite() {
 /*-------------------Tests------------------------------*/
 
 func (suite *CSVHandlerTestSuite) TestReadLines() {
-	resetScanner(&suite.csv)
 	rows := [][]string{
 		{"first_name", "last_name", "dob"},
 		{"Bobby", "Tables", "19700101"},
@@ -52,10 +51,10 @@ func (suite *CSVHandlerTestSuite) TestReadLines() {
 	}
 	_, err := suite.csv.NextRow()
 	assert.Error(suite.T(), err) // eof error
+	resetScanner(&suite.csv)
 }
 
 func (suite *CSVHandlerTestSuite) TestReadLineWithFilter() {
-	resetScanner(&suite.csv)
 	filter := []string{"Ken", "Thompson", "19430204"}
 	expect := []string{"Ken", "Thompson", "19430204"} // technically the same data as filter, but they both have different purposes
 	_, err := suite.csv.NextRowWithFilter(filter)
@@ -76,6 +75,7 @@ func (suite *CSVHandlerTestSuite) TestReadLineWithFilter() {
 
 	_, err = suite.csv.NextRowWithFilter(filter)
 	assert.Error(suite.T(), err)
+	resetScanner(&suite.csv)
 }
 
 /*-------------------Runner-----------------------------*/
