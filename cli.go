@@ -78,8 +78,22 @@ func NewCLI() (*CLI, error) {
 	}
 
 	return &CLI{
-		path: *pathPtr,
-		mode: mode,
-		args: filterArgs,
+		path:       *pathPtr,
+		mode:       mode,
+		args:       filterArgs,
+		csvHandler: &csvHandler,
 	}, nil
+}
+
+func (c *CLI) Run() {
+	for {
+		row, err := c.csvHandler.NextRowWithFilter(c.args)
+		if err != nil {
+			continue
+		}
+		if err == ErrEOF {
+			break
+		}
+		fmt.Println(strings.Join(row, ","))
+	}
 }
