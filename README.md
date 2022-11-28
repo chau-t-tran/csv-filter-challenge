@@ -1,11 +1,40 @@
 # csv-filter-challenge-public
+
+## How-To
+First, build the project with `go build`
+
+This CSV tool has three modes: 
+- `IMPLICIT` - User does not have to declare field names. Regex filters are used in the order that they appear in the .csv file. Missing filters will match all.
+- `EXPLICIT` - User declares each field name explicitly. Missing regex filters will match all.
+- `PROMPT` - User is prompted to enter a regex expression for each field in the .csv file.
+
+Usage: \
+`./csv-filter-challenge -f=[CSV_PATH] [flags] [optional_flags]` 
+
+Flags: \
+`-i`, Runs in implicit mode \
+`-e`, Runs in explicit mode \
+`-p`, Runs in prompt mode 
+
+Optional Flags: \
+`[regex0] [regex1] ...`, For use in implicit mode, defines regex filters in order of .csv fields. \
+`[FIELD_NAME0]=[regex0] [FIELD_NAME1]=[regex1] ...`, For use in explicit mode, defines regex filters for each respective .csv field 
+
+More Examples: \
+`./csv-filter-challenge -f=data.csv -i Ken Thompson 19430204` \
+`./csv-filter-challenge -f=data.csv -e first_name=Ken last_name=Thomp*` \
+`./csv-filter-challenge -f=data.csv -p `
+
+
 ## Assumptions
 - CSV file is syntactically correct.
 - CSV file always has three fields:
 	- `first_name` (string)
 	- `last_name` (string)
 	- `dob` (string)
-- Each CSV line is under 4kb due to `bufio`'s default Reader size.
+- CSV file always has data in each field (no empty string)
+- Each CSV line is under 64kb due to `bufio`'s default Scanner size.
+- Assumes user enters in flags correctly. Currently, no error handling for flags.
 
 # Instructions
 1. Click "Use this template" to create a copy of this repository in your personal github account.  
