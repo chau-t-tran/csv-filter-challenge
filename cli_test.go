@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -53,6 +54,43 @@ func (suite *CLITestSuite) TestExplicitArgs() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), "data.csv", cli.path)
 	assert.Equal(suite.T(), EXPLICIT, cli.mode)
+	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
+}
+
+func (suite *CLITestSuite) TestPromptArgs() {
+	/*
+		Prompt mode will interactive prompt for user input for each field
+		in the .csv file.
+	*/
+	args := []string{
+		"cmd",
+		"-f=data.csv",
+		"-p",
+	}
+	os.Args = args
+
+	input := []byte("Ken\nThompson\n19430204\n")
+	mockStdin, err := ioutil.TempFile("", "nil")
+	assert.NoError(suite.T(), err)
+
+	defer os.Remove(mockStdin.Name())
+
+	_, err = mockStdin.Write(input)
+	assert.NoError(suite.T(), err)
+
+	_, err = mockStdin.Seek(0, 0)
+	assert.NoError(suite.T(), err)
+
+	oldStdin := os.Stdin
+	defer func() { os.Stdin = oldStdin }()
+
+	os.Stdin = mockStdin
+
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	cli, err := NewCLI()
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "data.csv", cli.path)
+	assert.Equal(suite.T(), PROMPT, cli.mode)
 	assert.Equal(suite.T(), suite.orderedArgs, cli.args)
 }
 
