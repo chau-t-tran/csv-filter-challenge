@@ -35,46 +35,53 @@ func NewCLI() (*CLI, error) {
 		return nil, err
 	}
 
+	nameArgMap := make(map[string]string, 10)
 	var filterArgs []string
 	var mode Mode
 
+	colNames, err := csvHandler.NextRow()
+	if err != nil {
+		return nil, err
+	}
+
 	if *implicitPtr {
 		mode = IMPLICIT
-		filterArgs = flag.Args()
+		args := flag.Args()
+		for i, name := range colNames {
+			if i >= len(args) {
+				nameArgMap[name] = "*"
+				continue
+			}
+			nameArgMap[name] = args[i]
+		}
 	}
 
 	if *explicitPtr {
 		mode = EXPLICIT
-		nameArgMap := make(map[string]string, 10)
 		for _, arg := range flag.Args() {
 			split := strings.Split(arg, "=")
 			nameArgMap[split[0]] = split[1]
-		}
-
-		colNames, err := csvHandler.NextRow()
-		if err != nil {
-			return nil, err
-		}
-		for _, name := range colNames {
-			filterArgs = append(filterArgs, nameArgMap[name])
 		}
 	}
 
 	if *promptPtr {
 		mode = PROMPT
 		scanner := bufio.NewScanner(os.Stdin)
-
-		colNames, err := csvHandler.NextRow()
-		if err != nil {
-			return nil, err
-		}
 		for _, name := range colNames {
 			fmt.Printf("Enter filter for %s: ", name)
 			if scanner.Scan() {
-				filterArgs = append(filterArgs, scanner.Text())
+				nameArgMap[name] = scanner.Text()
 			}
 			fmt.Printf("\n")
 		}
+	}
+
+	for _, name := range colNames {
+		arg, ok := nameArgMap[name]
+		if !ok {
+			filterArgs = append(filterArgs, "*")
+		}
+		filterArgs = append(filterArgs, arg)
 	}
 
 	return &CLI{
