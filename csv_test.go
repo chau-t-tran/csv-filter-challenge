@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,6 +12,18 @@ import (
 type CSVHandlerTestSuite struct {
 	suite.Suite
 	csv CSVHandler
+}
+
+/*-------------------Helpers----------------------------*/
+
+func resetScanner(c *CSVHandler) {
+	/*
+		A new scanner needs to be made with every new test
+		because I can't think of a better way to reset the file
+		pointer.
+	*/
+	c.file.Seek(0, io.SeekStart)
+	c.scanner = bufio.NewScanner(c.file)
 }
 
 /*-------------------Setups/Teardowns-------------------*/
@@ -23,6 +37,7 @@ func (suite *CSVHandlerTestSuite) SetupSuite() {
 /*-------------------Tests------------------------------*/
 
 func (suite *CSVHandlerTestSuite) TestReadLines() {
+	resetScanner(&suite.csv)
 	rows := [][]string{
 		{"first_name", "last_name", "dob"},
 		{"Bobby", "Tables", "19700101"},
@@ -37,6 +52,30 @@ func (suite *CSVHandlerTestSuite) TestReadLines() {
 	}
 	_, err := suite.csv.NextRow()
 	assert.Error(suite.T(), err) // eof error
+}
+
+func (suite *CSVHandlerTestSuite) TestReadLineWithFilter() {
+	resetScanner(&suite.csv)
+	filter := []string{"Ken", "Thompson", "19430204"}
+	expect := []string{"Ken", "Thompson", "19430204"} // technically the same data as filter, but they both have different purposes
+	_, err := suite.csv.NextRowWithFilter(filter)
+	assert.Error(suite.T(), err)
+
+	_, err = suite.csv.NextRowWithFilter(filter)
+	assert.Error(suite.T(), err)
+
+	row, err := suite.csv.NextRowWithFilter(filter)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), expect, row)
+
+	_, err = suite.csv.NextRowWithFilter(filter)
+	assert.Error(suite.T(), err)
+
+	_, err = suite.csv.NextRowWithFilter(filter)
+	assert.Error(suite.T(), err)
+
+	_, err = suite.csv.NextRowWithFilter(filter)
+	assert.Error(suite.T(), err)
 }
 
 /*-------------------Runner-----------------------------*/
