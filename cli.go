@@ -89,10 +89,10 @@ func (c *CLI) Run() {
 	for {
 		row, err := c.csvHandler.NextRowWithFilter(c.args)
 		if err != nil {
+			if err == ErrEOF {
+				break
+			}
 			continue
-		}
-		if err == ErrEOF {
-			break
 		}
 		fmt.Println(strings.Join(row, ","))
 	}
