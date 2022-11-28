@@ -74,6 +74,23 @@ func (suite *CLITestSuite) TestExplicitArgs() {
 	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 }
 
+func (suite *CLITestSuite) TestIncompleteExplicitArgs() {
+	args := []string{
+		"cmd",
+		"-f=data.csv",
+		"-e",
+		"dob=19430204",
+		"first_name=Ken",
+	}
+	os.Args = args
+	cli, err := NewCLI()
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), "data.csv", cli.path)
+	assert.Equal(suite.T(), EXPLICIT, cli.mode)
+	assert.Equal(suite.T(), []string{"Ken", "*", "19430204"}, cli.args)
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+}
+
 func (suite *CLITestSuite) TestPromptArgs() {
 	/*
 		Prompt mode will interactive prompt for user input for each field
