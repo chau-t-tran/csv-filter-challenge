@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
+	"fmt"
+	"os"
 	"strings"
 )
 
@@ -10,6 +13,7 @@ type Mode int
 const (
 	IMPLICIT Mode = iota
 	EXPLICIT
+	PROMPT
 )
 
 type CLI struct {
@@ -23,6 +27,7 @@ func NewCLI() (*CLI, error) {
 	pathPtr := flag.String("f", "default", ".csv file path")
 	implicitPtr := flag.Bool("i", false, "Runs the CLI in implicit mode")
 	explicitPtr := flag.Bool("e", false, "Runs the CLI in explicit mode")
+	promptPtr := flag.Bool("p", false, "Runs the CLI in prompt mode")
 	flag.Parse()
 
 	csvHandler, err := NewCSVHandler(*pathPtr)
@@ -52,6 +57,23 @@ func NewCLI() (*CLI, error) {
 		}
 		for _, name := range colNames {
 			filterArgs = append(filterArgs, nameArgMap[name])
+		}
+	}
+
+	if *promptPtr {
+		mode = PROMPT
+		scanner := bufio.NewScanner(os.Stdin)
+
+		colNames, err := csvHandler.NextRow()
+		if err != nil {
+			return nil, err
+		}
+		for _, name := range colNames {
+			fmt.Printf("Enter filter for %s: ", name)
+			if scanner.Scan() {
+				filterArgs = append(filterArgs, scanner.Text())
+			}
+			fmt.Printf("\n")
 		}
 	}
 
